@@ -1,15 +1,16 @@
 import { Category } from "../entities/entities";
-import { categoryCreate } from "../interfaces/category.interface";
+import { categoryCreate, ICategory } from "../interfaces/category.interface";
 import { categoryRepository } from "../repositories/category.repository";
+import { randomUUID } from "node:crypto";
 
 class categoryUseCase { 
-    private categoryRepository: categoryRepository;
+    private categoryRepository: ICategory;
     constructor(){
         this.categoryRepository = new categoryRepository;
     }
-    async createCategory({name, icon}: categoryCreate): Promise<Category> {
-        const category = new Category(name, icon, undefined, undefined, undefined);     
-        return await this.categoryRepository.create(category);
+    async createCategory({name, icon}: Category): Promise<Category> {
+        const category = await this.categoryRepository.create({name, icon, id: randomUUID(), createdAt: new Date()});
+        return category;
     }
     async getCategoryById(id: string) {
         return await this.categoryRepository.findById(id);
@@ -17,17 +18,15 @@ class categoryUseCase {
     async getAllCategories() {
         return await this.categoryRepository.findAll();
     }
-    // async updateCategory(id: string, name: string, icon?: string) {
-    //     const category = await this.categoryRepository.findById(id);
-    //     if (!category) throw new Error("Category not found");
-    //     category.name = name;
-    //     category.icon = icon;
-    //     return await this.categoryRepository.update(category);
-    // }
 
     async deleteCategory(id: string) {
         return await this.categoryRepository.delete(id);
     }   
+
+    async updateCategory({name, icon}: Category): Promise<Category> {
+        const category = await this.categoryRepository.update({name, icon, updatedAt: new Date(), id: randomUUID() , createdAt: new Date()});
+        return category;
+    }
 }
 
 export {categoryUseCase}

@@ -5,7 +5,7 @@ export interface categoryCreate {
   icon?: string;
 }
 
-export interface ICategory {
+export interface ICategory{
   create(category: Category): Promise<Category>;          
   findById(id: string): Promise<Category | null>;
   findAll(): Promise<Category[]>;   

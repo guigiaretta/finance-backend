@@ -4,7 +4,8 @@ import { categoryRoutes } from './routes/category.routes';
 const server = fastify({ logger: true });
 
 server.register(categoryRoutes, {
-    prefix: '/categories', });
+    prefix: '/categories',
+});
 
 server.listen(
     { 
