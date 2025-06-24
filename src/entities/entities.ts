@@ -15,7 +15,7 @@ export class Category extends Entity {
 }
 
 export class Bank extends Entity {
-    constructor(private ispb: string, private name: string, private code: string, private fullName: string, id: string = randomUUID(), createdAt: Date, updatedAt?: Date | null) {
+    constructor(public ispb: string, public name: string, public code: string, public fullName: string, id: string = randomUUID(), createdAt: Date, updatedAt?: Date | null) {
         super(id, createdAt, updatedAt);
 
     }

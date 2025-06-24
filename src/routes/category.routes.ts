@@ -1,5 +1,4 @@
-import { FastifyInstance } from 'fastify';
-import { categoryCreate } from '../interfaces/category.interface';    
+import { FastifyInstance } from 'fastify';   
 import { categoryUseCase } from '../services/category.services';
 import { Category } from '../entities/entities';
 
@@ -58,19 +57,19 @@ export async function categoryRoutes(fastify: FastifyInstance){
     });
 
     //atualizar
-    fastify.put<{Body: Category}>('/:id', async (request, reply) =>
-    {
+    fastify.put<{Body: Category}>('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
-        const { name, icon} = request.body;
+        const { name, icon } = request.body; // name e icon são opcionais
         try {
-            const updatedCategory = await categoryUseCaseInstance.updateCategory(
-                new Category(name, icon, id, new Date())
-            );
-            return reply.send(updatedCategory);
+            // updateCategory espera o ID e o DTO de atualização
+            const updatedCategory = await categoryUseCaseInstance.updateCategory(id, { name, icon });
+            return reply.status(200).send(updatedCategory); // 200 OK
         } catch (error) {
             console.error(`Error updating category with ID ${id}:`, error);
-            return reply.status(500).send({ error: 'Failed to update category' });
-        }
-    }                   
-    );
+            if (error instanceof Error && error.message === "Category not found") { // Erro do UseCase
+                return reply.status(404).send({ error: 'Category not found' });
+            }
+            return reply.status(500).send({ error: 'Failed to update category' });         
+   } 
+});
 }

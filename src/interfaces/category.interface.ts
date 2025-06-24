@@ -1,7 +1,9 @@
 import { Category } from "../entities/entities";
 
-export interface categoryCreate {
-  name: string;     
+
+
+export interface categoryUpdate {
+  name?: string;
   icon?: string;
 }
 

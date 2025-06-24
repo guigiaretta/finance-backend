@@ -1,5 +1,5 @@
 import { Category } from "../entities/entities";
-import { categoryCreate, ICategory } from "../interfaces/category.interface";
+import {  categoryUpdate, ICategory } from "../interfaces/category.interface";
 import { categoryRepository } from "../repositories/category.repository";
 import { randomUUID } from "node:crypto";
 
@@ -23,9 +23,24 @@ class categoryUseCase {
         return await this.categoryRepository.delete(id);
     }   
 
-    async updateCategory({name, icon}: Category): Promise<Category> {
-        const category = await this.categoryRepository.update({name, icon, updatedAt: new Date(), id: randomUUID() , createdAt: new Date()});
-        return category;
+    async updateCategory(id: string, updates: categoryUpdate): Promise<Category> {
+        const category = await this.categoryRepository.findById(id);
+
+        if (!category) {
+            throw new Error("Category not found");
+        }
+
+        // Apply updates conditionally
+        if (updates.name !== undefined) {
+            category.name = updates.name;
+        }
+        if (updates.icon !== undefined) {
+            category.icon = updates.icon;
+        }
+
+        category.updatedAt = new Date(); // Update timestamp
+
+        return await this.categoryRepository.update(category);
     }
 }
 
