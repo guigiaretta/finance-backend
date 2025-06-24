@@ -73,3 +73,9 @@ export async function categoryRoutes(fastify: FastifyInstance){
    } 
 });
 }
+/*
+{
+	"name": "Caixa",
+	"icon": "01",
+}
+*/

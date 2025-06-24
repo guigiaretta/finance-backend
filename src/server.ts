@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import { categoryRoutes } from './routes/category.routes';
 import { bankRoutes } from './routes/bank.routes';
+import { transactionRoutes } from './routes/transaction.routes';
 
 const server = fastify({ logger: true });
 
@@ -10,6 +11,9 @@ server.register(categoryRoutes, {
 
 server.register(bankRoutes, {
     prefix: '/banks',
+});
+server.register(transactionRoutes, {
+    prefix: '/transactions',    
 });
 
 server.listen(

@@ -26,7 +26,7 @@ export class Transaction extends Entity {
     bank: Bank;
     category: Category;
 
-    constructor(private description: string, private type: TransactionType, private amount: number, bank: Bank, category: Category, private date: Date, id: string = randomUUID(), createdAt: Date, updatedAt?: Date | null) {
+    constructor(public description: string, public type: TransactionType, public amount: number, bank: Bank, category: Category, public date: Date, id: string = randomUUID(), createdAt: Date, updatedAt?: Date | null) {
         super(id, createdAt, updatedAt);
         this.bank = bank;
         this.category = category;

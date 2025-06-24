@@ -19,14 +19,14 @@ export class transactionRepository implements ITransaction {
     return this.transactions;
   }
 
-  async update(id: string, updatedTransaction: Partial<Transaction>): Promise<Transaction | null> {
-    const index = this.transactions.findIndex(t => t.id === id);
-    if (index === -1) return null;
-
-    const transaction = { ...this.transactions[index], ...updatedTransaction };
+  async update(id: string, transaction: Transaction): Promise<Transaction | null> {
+    const index = this.transactions.findIndex(t => t.id === id);    
+    if (index === -1) {
+      return null; // Transaction not found
+    }
     this.transactions[index] = transaction;
     return transaction;
-  }
+    }
 
   async delete(id: string): Promise<void> {
     this.transactions = this.transactions.filter(t => t.id !== id);

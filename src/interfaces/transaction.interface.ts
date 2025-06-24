@@ -1,5 +1,14 @@
 import { Transaction } from "../entities/entities";
 
+export interface createTransaction{
+  amount: number;
+  type: 'income' | 'expense';
+  description: string;
+  date: Date;
+  categoryId: string;
+  bankId: string;
+}
+
 
 export interface ITransaction {
   create(transaction: Transaction): Promise<Transaction>;
