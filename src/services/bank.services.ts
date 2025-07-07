@@ -1,3 +1,4 @@
+import { prisma } from "../database/prisma-finance";
 import { Bank } from "../entities/entities";
 import { bankUpdate, IBank } from "../interfaces/bank.interface";
 import { bankRepository } from "../repositories/bank.repository";
@@ -10,7 +11,11 @@ class bankUseCase{
 
     }
 
-    async createBank({ispb, name, code, fullName}: Bank): Promise<Bank> {
+    async createBank({ispb, name, code, fullName, id}: Bank): Promise<Bank> {
+        const verifyIfExists = await this.bankRepository.findById(id);
+        if (verifyIfExists) {
+            throw new Error("Bank already exists");
+        }
         const bank = await this.bankRepository.create({name, ispb, code, fullName, id: randomUUID(), createdAt: new Date()});
         return bank;
     }

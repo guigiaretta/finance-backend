@@ -1,14 +1,45 @@
+import { prisma } from "../database/prisma-finance";
 import { Transaction } from "../entities/entities";
-import { ITransaction } from "../interfaces/transaction.interface";
+import { ITransaction, transctionCreateData } from "../interfaces/transaction.interface";
 
 
 export class transactionRepository implements ITransaction {
   private transactions: Transaction[] = [];
 
-  async create(transaction: Transaction): Promise<Transaction> {
-    this.transactions.push(transaction);
-    return transaction;
-  }
+  async create(transaction: transctionCreateData): Promise<Transaction> {
+    const result = await prisma.transactions.create({
+    data: {
+      id: transaction.id,
+      amount: transaction.amount,
+      description: transaction.description,
+      type: transaction.type,
+      date: transaction.date,
+      category: {
+        connect: { id: transaction.category.id }
+      },
+      bank: {
+        connect: { id: transaction.bank.id }
+      }
+    },
+    include: {
+      bank: true,
+      category: true
+    }
+  });
+
+  // adapta para sua classe de domínio se necessário
+  return new Transaction(
+    result.description,
+    result.type,
+    result.amount,
+    result.bank,       // ou result.bankId se mudar para string
+    result.category,
+    result.date,
+    result.id,
+    result.createdAt,
+    result.updatedAt
+  );
+}
 
   async findById(id: string): Promise<Transaction | null> {
     const transaction = this.transactions.find(t => t.id === id);

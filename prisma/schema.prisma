@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bank{
+  id        String      @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ispb     String @unique
+  code     String @unique
+  fullName String
+
+  transactions Transactions[]
+
+  @@map("banks")
+}
+
+model Category {
+  id        String      @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  icon      String
+
+  transactions Transactions[]
+
+  @@map("categories")
+}
+
+model Transactions {
+  id          String      @id @default(uuid())
+  description String
+  amount      Float
+  type        String
+  date        DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  categoryId  String
+  bankId      String
+
+  category    Category   @relation(fields: [categoryId], references: [id])
+  bank        Bank       @relation(fields: [bankId], references: [id])
+
+  @@map("transactions")
+}

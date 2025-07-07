@@ -3,33 +3,26 @@ import { transactionUseCase } from "../services/transaction.services";
 import { Transaction } from "../entities/entities";
 import { createTransaction } from "../interfaces/transaction.interface";
 import { transactionRepository } from "../repositories/transaction.repository";
-import { bankRepository } from "../repositories/bank.repository";
-import { categoryRepository } from "../repositories/category.repository";
+
 
 export async function transactionRoutes(fastify: FastifyInstance) {
    
-    const transactionRepositoryInstance = new transactionRepository();
-    const bankRepositoryInstance = new bankRepository(); // Assume you have these
-    const categoryRepositoryInstance = new categoryRepository(); // Assume you have these
-
-     const transactionUseCaseInstance = new transactionUseCase(
-        transactionRepositoryInstance,
-        bankRepositoryInstance,
-        categoryRepositoryInstance
-     );
+    const transactionRepository = new transactionUseCase();
 
     // Create a new transaction
     fastify.post<{ Body: createTransaction }>("/", async (req, reply) => {        
-const { description, type, amount, bankId, categoryId, date } = req.body;
+    const { description, type, amount, bank, category, date } = req.body;
+    const bankId = req.headers['bank']; // Assuming bankId is passed in headers
         try {
             // Call createTransaction with the DTO object
-            const data = await transactionUseCaseInstance.createTransaction({
+            const data = await transactionRepository.createTransaction({
+                id: req.body.id || '', // Optional ID, can be generated if not provided
                 description,
                 type,
                 amount,
-                bankId,
-                categoryId,
-                date,
+                bank: bankId, // Assuming bankId is a string
+                category: { id: category }, // Assuming categoryId is a string
+                date: new Date(date) // Ensure date is a Date object
             });
             return reply.status(201).send(data);
         } catch (error) {

@@ -1,37 +1,40 @@
 import { Bank, Transaction } from "../entities/entities";
-import { IBank } from "../interfaces/bank.interface";
-import { ICategory } from "../interfaces/category.interface";
 import { createTransaction, ITransaction } from "../interfaces/transaction.interface";
+import { bankRepository } from "../repositories/bank.repository";
+import { categoryRepository } from "../repositories/category.repository";
 import { transactionRepository } from "../repositories/transaction.repository";
 import { randomUUID } from "node:crypto";
 
 class transactionUseCase{
     
     private transactionRepository: transactionRepository; // Dependency for transaction operations
-    private bankRepository: IBank;     // Dependency for fetching Bank
-    private categoryRepository: ICategory; // Dependency for fetching Category
+    private bankRepository: bankRepository; // Dependency for bank operations
+    private categoryRepository: categoryRepository; // Dependency for category operations
 
-    constructor(
-        transactionRepository: transactionRepository,
-        bankRepository: IBank,
-        categoryRepository: ICategory
-    ) {
-        this.transactionRepository = transactionRepository;
-        this.bankRepository = bankRepository;
-        this.categoryRepository = categoryRepository;
+    constructor() {
+        this.transactionRepository = new transactionRepository();
+        this.bankRepository = new bankRepository();
+        this.categoryRepository = new categoryRepository();
+
+
     }
 
     async createTransaction(data: createTransaction): Promise<Transaction> {
-
-        const bank = await this.bankRepository.findById(data.bankId);
+        const bank = await this.bankRepository.findById(data.bank);
         if (!bank) {
-            throw new Error("Bank not found."); 
+            throw new Error("Bank not found.");
+        }
+        
+        const category = await this.categoryRepository.findById(data.category);
+        if (!category) {    
+            throw new Error("Category not found.");
         }
 
-        const category = await this.categoryRepository.findById(data.categoryId);
-        if (!category) {
-            throw new Error("Category not found."); 
+        const existingTransaction = await this.transactionRepository.findById(data.id);
+        if (existingTransaction) {  
+            throw new Error("Transaction already exists with this ID.");
         }
+
 
         const newTransaction = new Transaction(
             data.description,

@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 
-type TransactionType = 'income' | 'expense';
 
 export class Entity {
 
@@ -26,7 +25,7 @@ export class Transaction extends Entity {
     bank: Bank;
     category: Category;
 
-    constructor(public description: string, public type: TransactionType, public amount: number, bank: Bank, category: Category, public date: Date, id: string = randomUUID(), createdAt: Date, updatedAt?: Date | null) {
+    constructor(public description: string, public type: string, public amount: number, bank: Bank, category: Category, public date: Date, id: string = randomUUID(), createdAt: Date, updatedAt?: Date | null) {
         super(id, createdAt, updatedAt);
         this.bank = bank;
         this.category = category;
