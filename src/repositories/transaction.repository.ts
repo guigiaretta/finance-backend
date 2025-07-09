@@ -54,7 +54,16 @@ export class transactionRepository implements ITransaction {
   }
 
   async findAll(): Promise<Transaction[]> {
-    return this.transactions;
+    const transactionArray = await prisma.transactions.findMany(
+      {
+        include: {
+          bank: true,
+          category: true
+        }
+      }
+    );
+    
+    return transactionArray;
   }
 
   async update(id: string, transaction: Transaction): Promise<Transaction | null> {
