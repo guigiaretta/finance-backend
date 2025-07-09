@@ -1,3 +1,4 @@
+import { prisma } from "../database/prisma-finance";
 import { Bank, Transaction } from "../entities/entities";
 import { createTransaction, ITransaction } from "../interfaces/transaction.interface";
 import { bankRepository } from "../repositories/bank.repository";
@@ -20,36 +21,30 @@ class transactionUseCase{
     }
 
     async createTransaction(data: createTransaction): Promise<Transaction> {
+
+        const category = await this.categoryRepository.findById(data.category);
+        if (!category) {    
+            throw new Error("Category not found.");
+        }
         const bank = await this.bankRepository.findById(data.bank);
         if (!bank) {
             throw new Error("Bank not found.");
         }
         
-        const category = await this.categoryRepository.findById(data.category);
-        if (!category) {    
-            throw new Error("Category not found.");
-        }
-
-        const existingTransaction = await this.transactionRepository.findById(data.id);
-        if (existingTransaction) {  
-            throw new Error("Transaction already exists with this ID.");
-        }
 
 
-        const newTransaction = new Transaction(
-            data.description,
-            data.type,
-            data.amount,
-            bank, 
-            category,   
-            data.date,
-            randomUUID(), 
-            new Date(),        
-        );
+        const transaction = await this.transactionRepository.create({
+            id: data.id || randomUUID(), // Generate a new ID if not provided
+            description: data.description,
+            type: data.type,
+            amount: data.amount,
+            date: new Date(data.date), // Ensure date is a Date object
+            category: category, // Use the found category
+            bank: bank // Use the found bank
+        })
 
         
-        const createdTransaction = await this.transactionRepository.create(newTransaction);
-        return createdTransaction;
+        return transaction;
     }
     async getTransactionById(id: string) {
         return await this.transactionRepository.findById(id);

@@ -20,12 +20,16 @@ export class bankRepository implements IBank{
     }
 
     async findById(id: string): Promise<Bank | null> {
-        
-        return this.banks.get(id) || null;
+        const result = await prisma.bank.findUnique({ where: { id } });
+         if (!result) return null;
+    
+        return result;
     }
 
     async findAll(): Promise<Bank[]> {
-        return Array.from(this.banks.values());
+        const banksArray = await prisma.bank.findMany();
+
+        return banksArray;
     }
 
     async update(bank: Bank): Promise<Bank> {

@@ -23,7 +23,9 @@ class bankUseCase{
         return await this.bankRepository.findById(id);
     }
     async getAllBanks() {
-        return await this.bankRepository.findAll();
+        const banks = await this.bankRepository.findAll();
+
+        return banks
     }
     async deleteBank(id: string) {
         return await this.bankRepository.delete(id);
