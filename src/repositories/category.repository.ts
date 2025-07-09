@@ -26,7 +26,9 @@ class categoryRepository implements ICategory {
   }
 
   async findAll(): Promise<Category[]> {
-    return this.categories;
+    const categoriesArray = await prisma.category.findMany();
+    
+    return categoriesArray;
   }
 
   async update(category: Category): Promise<Category> {

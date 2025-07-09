@@ -42,8 +42,15 @@ export class transactionRepository implements ITransaction {
 }
 
   async findById(id: string): Promise<Transaction | null> {
-    const transaction = this.transactions.find(t => t.id === id);
-    return transaction || null;
+    const result = await prisma.transactions.findUnique({
+       where: { id },
+       include: {
+          bank: true,
+          category: true
+    }});
+         if (!result) return null;
+    
+        return result;
   }
 
   async findAll(): Promise<Transaction[]> {

@@ -35,7 +35,7 @@ export async function transactionRoutes(fastify: FastifyInstance) {
     // Get all transactions
     fastify.get("/", async (request, reply) => {
         try {
-            const transactions = await transactionUseCaseInstance.getAllTransactions();         
+            const transactions = await transactionRepository.getAllTransactions;         
             return reply.send(transactions);
         } catch (error) {   
             console.error("Error fetching transactions:", error);
@@ -46,7 +46,7 @@ export async function transactionRoutes(fastify: FastifyInstance) {
     fastify.get("/:id", async (request, reply) => { 
         const { id } = request.params as { id: string };
         try {
-            const transaction = await transactionUseCaseInstance.getTransactionById(id);
+            const transaction = await transactionRepository.getTransactionById(id);
             if (!transaction) {
                 return reply.status(404).send({ error: "Transaction not found" });
             }
@@ -78,7 +78,7 @@ export async function transactionRoutes(fastify: FastifyInstance) {
     fastify.delete("/:id", async (request, reply) => {
         const { id } = request.params as { id: string };
         try {
-            await transactionUseCaseInstance.deleteTransaction(id);
+            await transactionRepository.deleteTransaction(id);
             return reply.send();
         } catch (error) {
             console.error(`Error deleting transaction with ID ${id}:`, error);
