@@ -36,11 +36,35 @@ export class bankRepository implements IBank{
         if (!this.banks.has(bank.id)) {
             throw new Error('Bank not found');
         }
-        this.banks.set(bank.id, bank);
-        return bank;
-    }
+        const result = await prisma.bank.update({
+            where: { id: bank.id },
+            data: {
+            name: bank.name,
+            ispb: bank.ispb,
+            code: bank.code,
+            fullName: bank.fullName,
+            updatedAt: new Date()
+            }
+        });
+
+        return new Bank(
+            result.id,
+            result.name,
+            result.ispb,
+            result.code,
+            result.fullName,
+            result.createdAt,
+            result.updatedAt
+        );
+}
 
     async delete(id: string): Promise<void> {
+        const bank = await this.findById(id);
+        if (!bank) {
+            throw new Error("Bank not found");
+        }
+        
+        await prisma.bank.delete({ where: { id } });
         this.banks.delete(id);
     }
 }

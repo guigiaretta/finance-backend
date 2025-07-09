@@ -35,7 +35,7 @@ export async function transactionRoutes(fastify: FastifyInstance) {
     // Get all transactions
     fastify.get("/", async (request, reply) => {
         try {
-            const transactions = await transactionRepository.getAllTransactions;         
+            const transactions = await transactionRepository.getAllTransactions();         
             return reply.send(transactions);
         } catch (error) {   
             console.error("Error fetching transactions:", error);

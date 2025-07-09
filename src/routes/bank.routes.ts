@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify';   
 import { bankUseCase } from '../services/bank.services';
 import { Bank, Category } from '../entities/entities';
+import { prisma } from '../database/prisma-finance';
 
 export async function bankRoutes(fastify: FastifyInstance){
     const bankUseCaseInstance = new bankUseCase();
@@ -8,9 +9,18 @@ export async function bankRoutes(fastify: FastifyInstance){
     // criar
     fastify.post<{Body: Bank}>('/', async (req, reply) => {
         const { ispb, name, code, fullName, id } = req.body;
+        // Verifica se todos os campos obrigatórios estão presentes
+        if (!ispb || !name || !code || !fullName) {
+            return reply.status(400).send({ error: 'All fields are required' });    
+        }   
         try {
             const data = await bankUseCaseInstance.createBank(
-                {name, ispb, code, fullName, id, createdAt: new Date()}
+                {name, 
+                ispb, 
+                code, 
+                fullName, 
+                id, 
+                createdAt: new Date()}
             );
             return reply.send(data);
         } catch (error) {
@@ -42,6 +52,7 @@ export async function bankRoutes(fastify: FastifyInstance){
     // deletar por id
     fastify.delete('/:id', async (request, reply) => {
         const { id } = request.params as { id: string };
+        
         try {
             await bankUseCaseInstance.deleteBank(id); 
             return reply.send(); 
@@ -69,6 +80,38 @@ export async function bankRoutes(fastify: FastifyInstance){
             return reply.status(500).send({ error: 'Failed to update bank' });
         }   
     });
+
+    fastify.patch<{ Params: { id: string }, Body: Partial<{
+        name: string;
+        ispb: string;
+        code: string;
+        fullName: string;
+        }> }>("/:id", async (request, reply) => {
+    const { id } = request.params;
+    const { name, ispb, code, fullName } = request.body;
+
+    try {
+        const existingBank = await prisma.bank.findUnique({ where: { id } });
+        if (!existingBank) {
+        return reply.status(404).send({ error: "Bank not found." });
+        }
+
+        const updatedBank = await prisma.bank.update({
+        where: { id },
+        data: {
+            name: name ?? existingBank.name,
+            ispb: ispb ?? existingBank.ispb,
+            code: code ?? existingBank.code,
+            fullName: fullName ?? existingBank.fullName,
+            updatedAt: new Date()
+        }
+        });
+
+        return reply.send(updatedBank);
+    } catch (error) {
+        return reply.status(500).send({ error: "Failed to update bank." });
+    }
+});
 }
 
 

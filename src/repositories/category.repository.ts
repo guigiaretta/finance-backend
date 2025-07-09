@@ -32,16 +32,36 @@ class categoryRepository implements ICategory {
   }
 
   async update(category: Category): Promise<Category> {
-    const index = this.categories.findIndex(cat => cat.id === category.id);
-    if (index === -1) throw new Error("Category not found");
-    this.categories[index] = category;
-    return category;
-  }
+    if (!this.categories.has(category.id)) {
+            throw new Error('Category not found');
+        }
+
+    const result = await prisma.category.update({
+    where: { id: category.id },
+    data: {
+      name: category.name,
+      icon: category.icon,
+      updatedAt: new Date()
+    }
+  });
+
+  return new Category(
+    result.id,
+    result.name,
+    result.icon,
+    result.createdAt,
+    result.updatedAt
+  );
+}
 
   async delete(id: string): Promise<void> {
-    const index = this.categories.findIndex(cat => cat.id === id);
-    if (index === -1) throw new Error("Category not found");
-    this.categories.splice(index, 1);
+    const category = await this.findById(id);
+    if (!category) {
+      throw new Error("Category not found");
+    }
+    
+    await prisma.category.delete({ where: { id } });
+    this.categories.delete(id);
   }
 }
   

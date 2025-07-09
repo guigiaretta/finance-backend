@@ -1,6 +1,8 @@
 import { FastifyInstance } from 'fastify';   
 import { categoryUseCase } from '../services/category.services';
 import { Category } from '../entities/entities';
+import { transactionUseCase } from '../services/transaction.services';
+import { prisma } from '../database/prisma-finance';
 
 export async function categoryRoutes(fastify: FastifyInstance){
     const categoryUseCaseInstance = new categoryUseCase();
@@ -72,7 +74,35 @@ export async function categoryRoutes(fastify: FastifyInstance){
             return reply.status(500).send({ error: 'Failed to update category' });         
    } 
 });
-}
+    fastify.patch<{ Params: { id: string }, Body: Partial<{
+            name: string;
+            icon: string;
+            }> }>("/:id", async (request, reply) => {
+        const { id } = request.params;
+        const { name, icon } = request.body;
+
+        try {
+            const existingCategory = await prisma.category.findUnique({ where: { id } });
+            if (!existingCategory) {
+            return reply.status(404).send({ error: "Category not found." });
+            }
+
+            const updatedCategory = await prisma.category.update({
+            where: { id },
+            data: {
+                name: name ?? existingCategory.name,
+                icon: icon ?? existingCategory.icon,
+                updatedAt: new Date()
+            }
+            });
+
+            return reply.send(updatedCategory);
+        } catch (error) {
+            return reply.status(500).send({ error: "Failed to update Category." });
+        }
+    });
+    }
+
 /*
 {
 	"name": "Caixa",
